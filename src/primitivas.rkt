@@ -1,5 +1,6 @@
 #lang eopl
-;Autores: Nombre1 Codigo1, Nombre2 Codigo2
+;Autores: Adriana Milena Noscue Dagua 2477336, Sebastian Cucalon Astorquiza 2477344
+;Santiago Torres Rojas 2380301, Nicolle Camila Hoyos Puin 2380608
 
 ;; Taller 2 — El intérprete de Cauca.
 ;; Las primitivas del lenguaje y las verificaciones de tipo y de
@@ -17,37 +18,136 @@
 ;; eopl:error a nombre de quien hizo la verificación.
 (define exigir-numeros
   (lambda (args quien)
-    (eopl:error 'exigir-numeros "Sin implementar")))
+    (cond
+      ((null? args) #t)
+      ((number? (car args))
+       (exigir-numeros (cdr args) quien))
+      (else
+       (eopl:error quien "Todos los argumentos deben ser números")))))
 
 ;; exigir-enteros : lista x symbol -> boolean
 ;; Retorna #t si todos los argumentos son enteros; si no, levanta error.
 (define exigir-enteros
   (lambda (args quien)
-    (eopl:error 'exigir-enteros "Sin implementar")))
+    (cond
+      ((null? args) #t)
+      ((integer? (car args))
+       (exigir-enteros (cdr args) quien))
+      (else
+       (eopl:error quien "Todos los argumentos deben ser enteros")))))
 
 ;; exigir-booleanos : lista x symbol -> boolean
 ;; Retorna #t si todos los argumentos son booleanos; si no, levanta error.
 (define exigir-booleanos
   (lambda (args quien)
-    (eopl:error 'exigir-booleanos "Sin implementar")))
+    (cond
+      ((null? args) #t)
+      ((boolean? (car args))
+       (exigir-booleanos (cdr args) quien))
+      (else
+       (eopl:error quien "Todos los argumentos deben ser booleanos")))))
 
 ;; exigir-cantidad : lista x int x symbol -> boolean
 ;; Retorna #t si llegaron exactamente n argumentos; si no, levanta error.
 (define exigir-cantidad
   (lambda (args n quien)
-    (eopl:error 'exigir-cantidad "Sin implementar")))
+    (if (= (length args) n)
+        #t
+        (eopl:error quien "Cantidad incorrecta de argumentos"))))
 
 ;; exigir-minimo : lista x int x symbol -> boolean
 ;; Retorna #t si llegaron al menos n argumentos; si no, levanta error.
 (define exigir-minimo
   (lambda (args n quien)
-    (eopl:error 'exigir-minimo "Sin implementar")))
+    (if (>= (length args) n)
+        #t
+        (eopl:error quien "Faltan argumentos"))))
 
 ;; evaluar-primitiva : primitiva x lista de valores -> valor
 ;; Verifica la cantidad y el tipo de los argumentos y aplica la
 ;; primitiva. Se resuelve con cases sobre el datatype primitiva.
+
 (define evaluar-primitiva
   (lambda (prim args)
-    (eopl:error 'evaluar-primitiva "Sin implementar")))
+    (cases primitiva prim
+      (sum-prim ()
+        (exigir-numeros args '+)
+        (apply + args))
+
+      (minus-prim ()
+        (exigir-minimo args 1 '-)
+        (exigir-numeros args '-)
+        (if (null? (cdr args))
+            (- (car args))
+            (- (car args) (apply + (cdr args)))))
+
+      (mult-prim ()
+        (exigir-numeros args '*)
+        (apply * args))
+
+      (div-prim ()
+        (exigir-minimo args 1 '/)
+        (exigir-numeros args '/)
+        (if (null? (cdr args))
+            (if (= (car args) 0)
+                (eopl:error '/ "Division entre cero")
+                (/ 1 (car args)))
+                        (if (member 0 (cdr args))
+                (eopl:error '/ "Division entre cero")
+                (/ (car args) (apply * (cdr args))))))
+
+        (add-prim ()
+         (exigir-cantidad args 1 'add1)
+         (exigir-numeros args 'add1)
+         (+ (car args) 1)) 
+        (sub-prim ()
+         (exigir-cantidad args 1 'sub1)
+         (exigir-numeros args 'sub1)
+          (- (car args) 1))
+
+      (mayor-prim ()
+        (exigir-cantidad args 2 '>)
+        (exigir-numeros args '>)
+        (> (car args) (cadr args)))
+
+      (mayorigual-prim ()
+        (exigir-cantidad args 2 '>=)
+        (exigir-numeros args '>=)
+        (>= (car args) (cadr args)))
+
+      (menor-prim ()
+        (exigir-cantidad args 2 '<)
+        (exigir-numeros args '<)
+        (< (car args) (cadr args)))
+
+      (menorigual-prim ()
+        (exigir-cantidad args 2 '<=)
+        (exigir-numeros args '<=)
+        (<= (car args) (cadr args)))
+
+      (igual-prim ()
+        (exigir-cantidad args 2 '==)
+        (exigir-numeros args '==)
+        (= (car args) (cadr args)))
+
+      (not-prim ()
+        (exigir-cantidad args 1 'not)
+        (exigir-booleanos args 'not)
+        (not (car args)))
+
+      (and-prim ()
+        (exigir-cantidad args 2 'and)
+        (exigir-booleanos args 'and)
+        (and (car args) (cadr args)))
+
+      (or-prim ()
+        (exigir-cantidad args 2 'or)
+        (exigir-booleanos args 'or)
+        (or (car args) (cadr args)))
+
+      (else
+        (eopl:error 'evaluar-primitiva
+                    "Primitiva no implementada")))))
+
 
 (provide (all-defined-out))

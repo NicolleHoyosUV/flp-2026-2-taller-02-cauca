@@ -1,5 +1,6 @@
 #lang eopl
-;Autores: Nombre1 Codigo1, Nombre2 Codigo2
+;Autores: Adriana Milena Noscue Dagua 2477336, Sebastian Cucalon Astorquiza 2477344
+;Santiago Torres Rojas 2380301, Nicolle Camila Hoyos Puin 2380608
 
 ;; Taller 2 — El intérprete de Cauca.
 ;; Especificación léxica, especificación gramatical, scanner y parser.
@@ -26,13 +27,111 @@
 ;; constructores y sus predicados. Mientras la gramática esté vacía no
 ;; genera ninguno.
 
+
 (define especificacion-lexica
-  '())
+  '(
+    (espacio-blanco (whitespace) skip)
+    (comentario ("//" (arbno (not #\newline))) skip)
+    (identificador
+     (letter (arbno (or letter digit "_" "?")))
+     symbol)
+    (numero
+     (digit (arbno digit))
+     number)
+    (numero
+     ("-" digit (arbno digit))
+     number)
+    (numero
+     (digit (arbno digit) "." digit (arbno digit))
+     number)
+    (numero
+     ("-" digit (arbno digit) "." digit (arbno digit))
+     number)
+    ))
+
+
 
 (define especificacion-gramatical
-  '())
+  '(
+    ;; Un programa contiene una expresion.
+    (programa
+     (expresion)
+     a-program)
+
+    ;; Literales numericos.
+    (expresion
+     (numero)
+     lit-exp)
+
+    ;; Variables.
+    (expresion
+     (identificador)
+     var-exp)
+
+    ;; Booleanos.
+    (expresion
+     ("true")
+     true-exp)
+
+    (expresion
+     ("false")
+     false-exp)
+
+    ;; Aplicacion de primitivas.
+    (expresion
+     (primitiva "(" (separated-list expresion ",") ")")
+     prim-exp)
+
+    ;; Condicional.
+    (expresion
+     ("if" expresion
+           "then" expresion
+           "else" expresion
+           "end")
+     if-exp)
+
+    ;; Ligaduras locales.
+    (expresion
+     ("let" (arbno identificador "=" expresion)
+            "in" expresion
+            "end")
+     let-exp)
+
+
+    ;; Primitivas aritmeticas
+  
+
+    (primitiva ("+") sum-prim)
+    (primitiva ("-") minus-prim)
+    (primitiva ("*") mult-prim)
+    (primitiva ("/") div-prim)
+
+    (primitiva ("add1") add-prim)
+    (primitiva ("sub1") sub-prim)
+
+
+   
+    ;; Primitivas relacionales
+   
+
+    (primitiva (">") mayor-prim)
+    (primitiva (">=") mayorigual-prim)
+    (primitiva ("<") menor-prim)
+    (primitiva ("<=") menorigual-prim)
+    (primitiva ("==") igual-prim)
+
+
+
+    ;; Primitivas logicas
+   
+
+    (primitiva ("not") not-prim)
+    (primitiva ("and") and-prim)
+    (primitiva ("or") or-prim)
+    ))
 
 (sllgen:make-define-datatypes especificacion-lexica especificacion-gramatical)
+
 
 ;; mostrar-datatypes : -> void
 ;; Lista en pantalla los datatypes que SLLGEN genera a partir de la
@@ -42,15 +141,74 @@
     (sllgen:list-define-datatypes especificacion-lexica especificacion-gramatical)))
 
 ;; scanner : string -> lista de tokens
-;; Convierte el texto de un programa en la lista de sus tokens.
+;; Convierte el texto en tokens usando SLLGEN.
+
 (define scanner
-  (lambda (texto)
-    (eopl:error 'scanner "Sin implementar")))
+  (sllgen:make-string-scanner
+   especificacion-lexica
+   especificacion-gramatical))
+
+
+
+; ==========================================
+; EJEMPLOS DEL SCANNER
+; ==========================================
+
+; Ejemplo 1: reconocer un numero
+(scanner "25")
+
+; Ejemplo 2: reconocer un identificador
+(scanner "base")
+
+; Ejemplo 3: reconocer una operacion aritmetica
+(scanner "+(2,3)")
+
+; Ejemplo 4: reconocer una expresion condicional
+(scanner "if true then 10 else 20 end")
+
+; Ejemplo 5: reconocer una declaracion let
+(scanner "let x = 5 in +(x,3) end")
+
+
 
 ;; parser : string -> programa
-;; Convierte el texto de un programa en su árbol de sintaxis abstracta.
+;; Convierte el texto en un AST usando SLLGEN.
+
 (define parser
-  (lambda (texto)
-    (eopl:error 'parser "Sin implementar")))
+  (sllgen:make-string-parser
+   especificacion-lexica
+   especificacion-gramatical))
+
+
+
+; ==========================================
+; EJEMPLOS DEL PARSER
+; ==========================================
+
+; Ejemplo 1: analizar un numero
+(parser "25")
+
+; Ejemplo 2: analizar una variable
+(parser "base")
+
+; Ejemplo 3: analizar una operacion aritmetica
+(parser "+(2,3)")
+
+; Ejemplo 4: analizar un condicional
+(parser "if true then 10 else 20 end")
+
+; Ejemplo 5: analizar una declaracion let
+(parser "let x = 5 in +(x,3) end")
+
+
+
+
+
 
 (provide (all-defined-out))
+
+
+
+
+
+
