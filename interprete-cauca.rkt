@@ -35,6 +35,7 @@
 ;;; ==========================================================
 
 #|
+  
   Aquí van los ejemplos que pide el enunciado: 5 del scanner, 5 del
   parser y los de ejecución de cada parte, con el resultado de cada uno
   escrito al lado. Las pruebas con rackunit viven en pruebas-cauca.rkt.
@@ -49,7 +50,41 @@
     (interpretar "...")   =>
 
   Primitivas nuevas
-    (interpretar "...")   =>
+    (interpretar "abs(-7)")   =>7
+    (interpretar "abs(7)")    => 7
+    (interpretar "abs(-3.5)")   => 3.5
+    ;; Error: (interpretar "abs(true)")   => eopl:error "Todos los argumentos deben ser números"
+
+    (interpretar "mcd(12, 18)")   => 6
+    (interpretar "mcd(7, 13)")   => 1
+    (interpretar "mcd(12, 18, 24)")  => 6
+    ;; Error: (interpretar "mcd(12.5, 18)") => eopl:error "Todos los argumentos deben ser enteros"
+
+    (interpretar "mcm(4, 6)")   => 12
+    (interpretar "mcm(3, 5)")   => 15
+    (interpretar "mcm(2, 3, 4)")   => 12
+    ;; Error: (interpretar "mcm(4)")   => eopl:error "Faltan argumentos"
+
+    (interpretar "promedio(1, 2, 3, 4)")  => 5/2
+    (interpretar "promedio(10)")   => 10
+    (interpretar "promedio(n, m)")   => 13/2
+    ;; Error: (interpretar "promedio(1, true)") => eopl:error "Todos los argumentos deben ser números"
+
+    (interpretar "xor(true, false)")  => #t
+    (interpretar "xor(true, true)")   => #f
+    (interpretar "xor(false, false)")  => #f
+    ;; Error: (interpretar "xor(1, false)") => eopl:error "Todos los argumentos deben ser booleanos"
+
+    (interpretar "implica(true, false)")   => #f
+    (interpretar "implica(false, false)")   => #t
+    (interpretar "implica(true, true)")   => #t
+    ;; Error: (interpretar "implica(true, 0)") => eopl:error "Todos los argumentos deben ser booleanos"
+
+    (interpretar "entre(5, 1, 10)")   => #t
+    (interpretar "entre(1, 1, 10)")   => #t
+    (interpretar "entre(11, 1, 10)")   => #f
+    ;; Error: (interpretar "entre(5, 1)") => eopl:error "Cantidad incorrecta de argumentos"
+  
 
   Procedimientos
     (interpretar "...")   =>
