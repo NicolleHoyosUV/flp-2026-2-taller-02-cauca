@@ -1,5 +1,6 @@
 #lang eopl
-;Autores: Nombre1 Codigo1, Nombre2 Codigo2
+;Autores: Adriana Milena Noscue Dagua 2477336, Sebastian Cucalon Astorquiza 2477344
+;Santiago Torres Rojas 2380301, Nicolle Camila Hoyos Puin 2380608
 
 ;; Taller 2 — El intérprete de Cauca.
 ;; El TAD ambiente, la búsqueda de ligaduras y el ambiente inicial.
@@ -29,15 +30,64 @@
 ;; apply-env : ambiente x symbol -> valor
 ;; Busca el identificador en el ambiente, respetando el shadowing de las
 ;; ligaduras más recientes, y levanta eopl:error si no está ligado.
+; Definición del tipo de dato ambiente.
+
+(define-datatype ambiente ambiente?
+  (ambiente-vacio)
+  (ambiente-extendido
+   (ids (list-of symbol?))
+   (valores list?)
+   (env ambiente?))
+  (ambiente-recursivo
+   (proc-names (list-of symbol?))
+   (idss list?)
+   (bodies (list-of expresion?))
+   (env ambiente?)))
+
+;; Busca una variable en el ambiente.
+
 (define apply-env
   (lambda (env id)
-    (eopl:error 'apply-env "Sin implementar")))
+    (cases ambiente env
+      (ambiente-vacio ()
+        (eopl:error 'apply-env
+                    "Variable no definida: ~s" id))
 
-;; ambiente-inicial : -> ambiente
-;; El ambiente con que arranca todo programa:
-;; n = 10, m = 3, p = 7, q = 2, r = 5.
+      (ambiente-extendido (ids valores ambiente-anterior)
+        (let buscar ((ids-restantes ids)
+                     (valores-restantes valores))
+          (cond
+            ((null? ids-restantes)
+             (apply-env ambiente-anterior id))
+            ((eqv? id (car ids-restantes))
+             (car valores-restantes))
+            (else
+             (buscar (cdr ids-restantes)
+                     (cdr valores-restantes))))))
+
+      (ambiente-recursivo (proc-names idss bodies ambiente-anterior)
+        (let buscar ((nombres-restantes proc-names)
+                     (parametros-restantes idss)
+                     (cuerpos-restantes bodies))
+          (cond
+            ((null? nombres-restantes)
+             (apply-env ambiente-anterior id))
+            ((eqv? id (car nombres-restantes))
+             (cerradura (car parametros-restantes)
+                        (car cuerpos-restantes)
+                        env))
+            (else
+             (buscar (cdr nombres-restantes)
+                     (cdr parametros-restantes)
+                     (cdr cuerpos-restantes)))))))))
+
+;; Ambiente inicial: n=10, m=3, p=7, q=2, r=5.
 (define ambiente-inicial
   (lambda ()
-    (eopl:error 'ambiente-inicial "Sin implementar")))
+    (ambiente-extendido
+     '(n m p q r)
+     '(10 3 7 2 5)
+     (ambiente-vacio))))
 
 (provide (all-defined-out))
+
