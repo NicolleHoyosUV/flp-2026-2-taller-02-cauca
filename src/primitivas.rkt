@@ -14,7 +14,7 @@
 (require "sintaxis.rkt")
 
 ;; exigir-numeros : lista x symbol -> boolean
-;; Retorna #t si todos los argumentos son números; si no, levanta
+;; Retorna #t si todos los argumentos son números; si no, levantax
 ;; eopl:error a nombre de quien hizo la verificación.
 (define exigir-numeros
   (lambda (args quien)
@@ -144,6 +144,58 @@
         (exigir-cantidad args 2 'or)
         (exigir-booleanos args 'or)
         (or (car args) (cadr args)))
+
+      ;; PARTE 2: PRIMITIVAS NUEVAS
+
+      ;; abs : lista(numero) -> numero
+      ;; Retorna el valor absoluto del numero ingresado.
+      (abs-prim ()
+        (exigir-cantidad args 1 'abs)
+        (exigir-numeros args 'abs)
+        (abs (car args)))
+
+      ;; mcd : lista(entero, entero, ...) -> entero
+      ;; Retorna el maximo comun divisor de n >= 2 enteros.
+      (mcd-prim ()
+        (exigir-minimo args 2 'mcd)
+        (exigir-enteros args 'mcd)
+        (apply gcd args))
+
+      ;; mcm : lista(entero, entero, ...) -> entero
+      ;; Retorna el minimo comun multiplo de n >= 2 enteros.
+      (mcm-prim ()
+        (exigir-minimo args 2 'mcm)
+        (exigir-enteros args 'mcm)
+        (apply lcm args))
+
+      ;; promedio : lista(numero, ...) -> numero
+      ;; Retorna la media aritmetica de n >= 1 numeros.
+      (promedio-prim ()
+        (exigir-minimo args 1 'promedio)
+        (exigir-numeros args 'promedio)
+        (/ (apply + args) (length args)))
+
+      ;; xor : lista(booleano, booleano) -> booleano
+      ;; Retorna verdadero si exactamente uno de los dos argumentos es verdadero.
+      (xor-prim ()
+        (exigir-cantidad args 2 'xor)
+        (exigir-booleanos args 'xor)
+        (not (eq? (car args) (cadr args))))
+
+      ;; implica : lista(booleano, booleano) -> booleano
+      ;; Retorna falso unicamente cuando el primer argumento es verdadero y el segundo es falso.
+      (implica-prim ()
+        (exigir-cantidad args 2 'implica)
+        (exigir-booleanos args 'implica)
+        (or (not (car args)) (cadr args)))
+
+      ;; entre : lista(numero, numero, numero) -> booleano
+      ;; entre(x, a, b) retorna verdadero si a <= x <= b.
+      (entre-prim ()
+        (exigir-cantidad args 3 'entre)
+        (exigir-numeros args 'entre)
+        (and (<= (cadr args) (car args))
+             (<= (car args) (caddr args))))
 
       (else
         (eopl:error 'evaluar-primitiva

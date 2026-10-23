@@ -128,7 +128,17 @@
     (primitiva ("not") not-prim)
     (primitiva ("and") and-prim)
     (primitiva ("or") or-prim)
+    
+    ;; Primitivas nuevas — Parte 2
+    (primitiva ("abs") abs-prim)
+    (primitiva ("mcd") mcd-prim)
+    (primitiva ("mcm") mcm-prim)
+    (primitiva ("promedio") promedio-prim)
+    (primitiva ("xor") xor-prim)
+    (primitiva ("implica") implica-prim)
+    (primitiva ("entre") entre-prim)
     ))
+
 
 (sllgen:make-define-datatypes especificacion-lexica especificacion-gramatical)
 
