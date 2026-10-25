@@ -107,6 +107,22 @@
      ("apply" expresion "(" (separated-list expresion ",") ")")
      app-exp)
 
+    ;; Ligadura recursiva 
+    (expresion
+     ("letrec"
+      (arbno identificador "(" (separated-list identificador ",") ")" "=" expresion)
+      "in" expresion
+      "end")
+     letrec-exp)
+
+    ;; Seleccion por valor
+    (expresion
+     ("case" expresion
+             (arbno "of" numero "=>" expresion)
+             "otherwise" "=>" expresion
+             "end")
+     case-exp)
+
 
     ;; Primitivas aritmeticas
   

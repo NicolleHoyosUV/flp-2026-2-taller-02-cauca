@@ -203,13 +203,72 @@ in case dia of 1 => 100 of 3 => 300 otherwise => 0 end end") 0))
               (check-exn exn:fail?
                          (lambda () (corre "case true of 1 => 1 otherwise => 0 end"))))))
 
+(define letrec-y-case
+  (test-suite
+   "Parte 4 (grupo): letrec y case"
+
+   (test-case "el scanner reconoce letrec y case"
+              (check-true (list? (scanner "letrec f (k) = k in apply f (1) end")))
+              (check-true (list? (scanner "case 1 of 1 => 2 otherwise => 3 end"))))
+   (test-case "el parser reconoce letrec y case"
+              (check-pred programa? (parser "letrec f (k) = k in apply f (1) end"))
+              (check-pred programa? (parser "case 1 of 1 => 2 otherwise => 3 end")))
+   (test-case "el parser rechaza letrec y case mal formados"
+              (check-exn exn:fail? (lambda () (parser "case 1 of 1 => 2 otherwise => 3")))
+              (check-exn exn:fail? (lambda () (parser "case 1 of 1 => 2 end")))
+              (check-exn exn:fail? (lambda () (parser "letrec f (k) = k in 1"))))
+
+   (test-case "letrec: fibonacci con dos llamadas recursivas"
+              (check-equal? (corre "letrec
+  fib (k) = if <(k, 2) then k
+            else +(apply fib (sub1(k)), apply fib (-(k, 2)))
+            end
+in apply fib (10) end") 55))
+   (test-case "letrec: procedimiento sin parametros"
+              (check-equal? (corre "letrec uno () = 1 in apply uno () end") 1))
+   (test-case "letrec: tres procedimientos mutuamente recursivos"
+              (check-equal? (corre "letrec
+  a (k) = if ==(k, 0) then 0 else apply b (sub1(k)) end
+  b (k) = if ==(k, 0) then 1 else apply c (sub1(k)) end
+  c (k) = if ==(k, 0) then 2 else apply a (sub1(k)) end
+in apply a (7) end") 1))
+   (test-case "letrec: el cuerpo ve las variables del ambiente exterior"
+              (check-equal? (corre "let base = 100
+in letrec suma (k) = if ==(k, 0) then base else +(1, apply suma (sub1(k))) end
+   in apply suma (3) end
+end") 103))
+   (test-case "letrec: un let interno puede ocultar el nombre del procedimiento"
+              (check-equal? (corre "letrec f (k) = k in let f = 7 in f end end") 7))
+   (test-case "letrec: cantidad de argumentos incorrecta es un error"
+              (check-exn exn:fail?
+                         (lambda () (corre "letrec f (a, b) = a in apply f (1) end"))))
+   (test-case "letrec: un nombre no declarado es un error"
+              (check-exn exn:fail?
+                         (lambda () (corre "letrec f (k) = k in apply g (1) end"))))
+
+   (test-case "case: gana la primera rama"
+              (check-equal? (corre "case 1 of 1 => 10 of 2 => 20 otherwise => 0 end") 10))
+   (test-case "case: con literales repetidos gana la primera coincidencia"
+              (check-equal? (corre "case 2 of 2 => 20 of 2 => 99 otherwise => 0 end") 20))
+   (test-case "case: control flotante y literal negativo"
+              (check-equal? (corre "case 2.5 of 2 => 20 of 2.5 => 25 otherwise => 0 end") 25)
+              (check-equal? (corre "case -3 of -3 => 1 otherwise => 0 end") 1))
+   (test-case "case: las acciones se evaluan en el ambiente actual"
+              (check-equal? (corre "let x = 5 in case x of 5 => *(x, 2) otherwise => 0 end end") 10))
+   (test-case "case: anidado"
+              (check-equal? (corre "case 1 of 1 => case 2 of 2 => 22 otherwise => 0 end otherwise => 9 end") 22))
+   (test-case "case: un control que no es numero es un error"
+              (check-exn exn:fail?
+                         (lambda () (corre "let f = proc (a) a end in case f of 1 => 1 otherwise => 0 end end"))))))
+
 ;; Las suites que agregue el grupo se declaran arriba y se suman aquí.
 
 (define fallidas
   (+ (run-tests base)
      (run-tests primitivas-nuevas)
      (run-tests procedimientos)
-     (run-tests recursion-y-case)))
+     (run-tests recursion-y-case)
+     (run-tests letrec-y-case)))
 
 (eopl:printf "~%==========================================~%")
 (eopl:printf "  pruebas fallidas en total: ~s~%" fallidas)

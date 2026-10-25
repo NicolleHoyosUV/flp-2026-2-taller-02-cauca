@@ -108,8 +108,28 @@
       (app-exp (rator rands)
         (let ((proc (evaluar-expresion rator env))
               (args (evaluar-rands rands env)))
-          (apply-procedure proc args))))))
+          (apply-procedure proc args)))
 
+      ;; Parte 4: letrec
+      (letrec-exp (proc-names idss bodies body)
+        (evaluar-expresion
+         body
+         (ambiente-recursivo proc-names idss bodies env)))
+
+            ;; Parte 4.2: case
+      (case-exp (exp-control valores acciones default)
+        (let ((control-value (evaluar-expresion exp-control env)))
+          (if (number? control-value)
+              (letrec ((recorrer
+                        (lambda (vals acts)
+                          (cond
+                            ((null? vals) (evaluar-expresion default env))
+                            ((= control-value (car vals))
+                             (evaluar-expresion (car acts) env))
+                            (else (recorrer (cdr vals) (cdr acts)))))))
+                (recorrer valores acciones))
+              (eopl:error 'evaluar-expresion
+                          "El valor de control del case debe ser numerico")))))))
 
 
 (provide (all-defined-out))
