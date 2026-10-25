@@ -22,6 +22,9 @@
 
 (require "sintaxis.rkt")
 
+;; procval : datatype
+;; Representa los valores de procedimientos en el lenguaje (clausuras).
+;; Guardan los parámetros, el cuerpo sin evaluar y el ambiente de definición.
 
 (define-datatype procval procval?
   (cerradura

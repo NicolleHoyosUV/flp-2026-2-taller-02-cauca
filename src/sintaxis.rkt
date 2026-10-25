@@ -97,6 +97,16 @@
             "end")
      let-exp)
 
+    ;; Procedimientos (Parte 3)
+    (expresion
+     ("proc" "(" (separated-list identificador ",") ")" expresion "end")
+     proc-exp)
+
+    ;; Aplicacion de procedimientos (Parte 3)
+    (expresion
+     ("apply" expresion "(" (separated-list expresion ",") ")")
+     app-exp)
+
 
     ;; Primitivas aritmeticas
   

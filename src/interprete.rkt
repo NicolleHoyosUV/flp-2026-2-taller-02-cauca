@@ -22,14 +22,17 @@
 
 (define apply-procedure
   (lambda (proc args)
-    (cases procval proc
-      (cerradura (ids body env)
-        (if (= (length ids) (length args))
-            (evaluar-expresion
-             body
-             (ambiente-extendido ids args env))
-            (eopl:error 'apply-procedure
-                        "Cantidad incorrecta de argumentos"))))))
+    (if (procval? proc)
+        (cases procval proc
+          (cerradura (ids body env)
+            (if (= (length ids) (length args))
+                (evaluar-expresion
+                 body
+                 (ambiente-extendido ids args env))
+                (eopl:error 'apply-procedure
+                            "Cantidad incorrecta de argumentos"))))
+        (eopl:error 'apply-procedure
+                    "El operador no es un procedimiento valido"))))
 
 
 ;; evaluar-programa : programa -> valor
@@ -95,7 +98,18 @@
         (let ((valores (evaluar-rands rands env)))
           (evaluar-expresion
            body
-           (ambiente-extendido ids valores env)))))))
+           (ambiente-extendido ids valores env))))
+
+      ;; Parte 3: Construcción de un procedimiento (creación de clausura)
+      (proc-exp (ids body)
+        (cerradura ids body env))
+
+      ;; Parte 3: Aplicación de un procedimiento
+      (app-exp (rator rands)
+        (let ((proc (evaluar-expresion rator env))
+              (args (evaluar-rands rands env)))
+          (apply-procedure proc args))))))
+
 
 
 (provide (all-defined-out))
