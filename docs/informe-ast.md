@@ -19,6 +19,7 @@ de Programación — Universidad del Valle, Sede Tuluá.
 | Santiago Torres Rojas | 2380301 | santiago.torres.rojas@correounivalle.edu.co |
 | Nicolle Camila Hoyos Puin | 2380608 | nicolle.hoyos@correounivalle.edu.co |		
 
+apply
 ---
 
 ## 1. Gramática considerada
