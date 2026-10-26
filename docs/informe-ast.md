@@ -17,6 +17,7 @@ de Programación — Universidad del Valle, Sede Tuluá.
 | {{Nombre 1}} | {{Código 1}} | {{correo1@correounivalle.edu.co}} |
 | {{Nombre 2}} | {{Código 2}} | {{correo2@correounivalle.edu.co}} |
 
+apply
 ---
 
 ## 1. Gramática considerada
